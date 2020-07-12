@@ -198,31 +198,28 @@ func (f *Formatter) writeHTML(w io.Writer, style *chroma.Style, tokens []chroma.
 	if wrapInTable {
 		// List line numbers in its own <td>
 		fmt.Fprintf(w, "<div%s>\n", f.styleAttr(css, chroma.Background))
-		fmt.Fprintf(w, "<table%s><tr>", f.styleAttr(css, chroma.LineTable))
-		fmt.Fprintf(w, "<td%s>\n", f.styleAttr(css, chroma.LineTableTD))
-		fmt.Fprintf(w, f.preWrapper.Start(false, f.styleAttr(css, chroma.Background)))
-		for index := range lines {
-			line := f.baseLineNumber + index
-			highlight, next := f.shouldHighlight(highlightIndex, line)
-			if next {
-				highlightIndex++
-			}
-			if highlight {
-				fmt.Fprintf(w, "<span%s>", f.styleAttr(css, chroma.LineHighlight))
-			}
+		fmt.Fprintf(w, "<table%s>", f.styleAttr(css, chroma.LineTable))
+		// fmt.Fprintf(w, f.preWrapper.Start(false, f.styleAttr(css, chroma.Background)))
+		// for index := range lines {
+		// 	line := f.baseLineNumber + index
+		// 	highlight, next := f.shouldHighlight(highlightIndex, line)
+		// 	if next {
+		// 		highlightIndex++
+		// 	}
+		// 	if highlight {
+		// 		fmt.Fprintf(w, "<span%s>", f.styleAttr(css, chroma.LineHighlight))
+		// 	}
 
-			fmt.Fprintf(w, "<span%s%s>%*d\n</span>", f.styleAttr(css, chroma.LineNumbersTable), f.lineIDAttribute(line), lineDigits, line)
+		// 	fmt.Fprintf(w, "<span%s%s>%*d\n</span>", f.styleAttr(css, chroma.LineNumbersTable), f.lineIDAttribute(line), lineDigits, line)
 
-			if highlight {
-				fmt.Fprintf(w, "</span>")
-			}
-		}
-		fmt.Fprint(w, f.preWrapper.End(false))
-		fmt.Fprint(w, "</td>\n")
-		fmt.Fprintf(w, "<td%s>\n", f.styleAttr(css, chroma.LineTableTD, "width:100%"))
+		// 	if highlight {
+		// 		fmt.Fprintf(w, "</span>")
+		// 	}
+		// }
+		// fmt.Fprint(w, f.preWrapper.End(false))
+		// fmt.Fprint(w, "</td>\n")
+		// fmt.Fprintf(w, "<td%s>\n", f.styleAttr(css, chroma.LineTableTD, "width:100%"))
 	}
-
-	fmt.Fprintf(w, f.preWrapper.Start(true, f.styleAttr(css, chroma.Background)))
 
 	highlightIndex = 0
 	for index, tokens := range lines {
@@ -231,6 +228,24 @@ func (f *Formatter) writeHTML(w io.Writer, style *chroma.Style, tokens []chroma.
 		highlight, next := f.shouldHighlight(highlightIndex, line)
 		if next {
 			highlightIndex++
+		}
+		if wrapInTable {
+			fmt.Fprintf(w, "<tr><td%s>\n", f.styleAttr(css, chroma.LineTableTD))
+
+		}
+		fmt.Fprintf(w, f.preWrapper.Start(true, f.styleAttr(css, chroma.Background)))
+		if highlight {
+			fmt.Fprintf(w, "<span%s>", f.styleAttr(css, chroma.LineHighlight))
+		}
+
+		fmt.Fprintf(w, "<span%s%s>%*d\n</span>", f.styleAttr(css, chroma.LineNumbersTable), f.lineIDAttribute(line), lineDigits, line)
+
+		if highlight {
+			fmt.Fprintf(w, "</span>")
+		}
+		fmt.Fprint(w, f.preWrapper.End(false))
+		if wrapInTable {
+			fmt.Fprintf(w, "</td><td%s>\n", f.styleAttr(css, chroma.LineTableTD))
 		}
 		if highlight {
 			fmt.Fprintf(w, "<span%s>", f.styleAttr(css, chroma.LineHighlight))
@@ -251,12 +266,12 @@ func (f *Formatter) writeHTML(w io.Writer, style *chroma.Style, tokens []chroma.
 		if highlight {
 			fmt.Fprintf(w, "</span>")
 		}
+		fmt.Fprintf(w, f.preWrapper.End(true))
+		fmt.Fprint(w, "</td></tr>\n")
 	}
 
-	fmt.Fprintf(w, f.preWrapper.End(true))
-
 	if wrapInTable {
-		fmt.Fprint(w, "</td></tr></table>\n")
+		fmt.Fprint(w, "</table>\n")
 		fmt.Fprint(w, "</div>\n")
 	}
 

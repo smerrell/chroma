@@ -108,6 +108,51 @@ func TestTableLineNumberNewlines(t *testing.T) {
 </span>`)
 }
 
+func TestTable(t *testing.T) {
+	f := New(WithClasses(true), WithLineNumbers(true), LineNumbersInTable(true))
+	it, err := lexers.Get("bash").Tokenise(nil, "echo FOO\necho FOO")
+	assert.NoError(t, err)
+
+	var buf bytes.Buffer
+	err = f.Format(&buf, styles.Fallback, it)
+	assert.NoError(t, err)
+
+	fmt.Print(buf.String())
+	assert.Equal(t, buf.String(), `<div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<span class="lnt>1
+</span></td>
+<td class="lntd>
+<span class="nb">echo</span> FOO</td></tr>
+<tr><td class="lntd">
+<span class="lnt>1
+</span></td>
+<td class="lntd>
+<span class="nb">echo</span> FOO</td></tr></table>
+</div>`)
+	// <div class="chroma">
+	// <table class="lntable"><tr><td class="lntd">
+	// <foo class="chroma" id="code-false"><span class="lnt">1
+	// </span></foo></td>
+	// <td class="lntd">
+	// <foo class="chroma" id="code-true"><span class="nb">echo</span> FOO</foo></td></tr></table>
+	// </div>
+
+	// <div class="chroma">
+	// <table class="lntable"><tbody>
+	// <tr><td class="lntd">
+	// <foo class="chroma" id="code-false"><span class="lnt">1
+	// </span></foo></td>
+	// <td class="lntd">
+	// <foo class="chroma" id="code-true"><span class="nb">echo</span> FOO</foo></td></tr></table>
+	// </div>
+
+	// 	assert.Contains(t, buf.String(), `<span class="lnt">2
+	// </span><span class="lnt">3
+	// </span><span class="lnt">4
+	// </span>`)
+}
+
 func TestTableLineNumberSpacing(t *testing.T) {
 	testCases := []struct {
 		baseLineNumber int
